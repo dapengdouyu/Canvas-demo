@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas">
+        你的浏览器不支持canvas
+    </canvas>
+    <input type="file" name="" value="" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg">
+</body>
+<script>
+    window.addEventListener("resize", resizeCanvas, false);
+    window.addEventListener("load", resizeCanvas, false);
+
+    function resizeCanvas() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight - 100;
+    }
+    var canvas = document.querySelector("canvas");
+    var ctx = canvas.getContext("2d");
+    var file = document.querySelector("input");
+    file.onchange = function (e) {
+        var file = e.target.files[0];
+        var width = window.innerWidth;
+        var href = window.URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () {
+            var pi = img.height / img.width;
+            var height = pi * width;
+            ctx.beginPath();
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.drawImage(img, 0, 0, width, height);
+            //获得像素点
+            // 设置起始点
+            var startX = w / 2;
+            var startY = h;
+            CCanvas(ctx, canvas, startX, startY)
+        }
+        img.src = href;
+    }
+
+    function CCanvas(ctx, canvas, startX, startY) {
+        var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        //横100，竖100
+        var cols = canvas.width / 4;
+        var rows = canvas.height / 4;
+        var pcols = canvas.width / cols;
+        var prows = canvas.height / rows;
+        var pic = 0;
+        var arr = [];
+        for (var x = 0; x < cols; x++) {
+            for (var y = 0; y < rows; y++) {
+                //（x,y）点的坐标
+                pic = (x * pcols + y * prows * canvas.width) * 4;
+                var r = data[pic];
+                var g = data[pic + 1];
+                var b = data[pic + 2];
+                var a = data[pic + 3];
+                if (a > 0) {
+                    arr.push({
+                        x: x * pcols,
+                        y: y * prows,
+                        style: `rgba(${r},${g},${b},${a})`
+                    })
+                }
+            }
+        }
+        var startDate = Date.now();
+
+        function loop() {
+            var now = Date.now() - startDate;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            arr.forEach(function (val, ind) {
+                ctx.beginPath();
+                var time = Math.abs(now - val.y * 20 - Math.abs(val.x - canvas.width / 2) * 10) / 3000;
+                if (time > 1 && now - val.y * 20 > 0) {
+                    var mx = startX - val.x;
+                    var my = startY - val.y;
+                    cancelAnimationFrame(loop)
+                } else {
+                    var mx = (now - val.y * 20 - Math.abs(val.x - canvas.width / 2) * 10) * (startX - val.x) /
+                        3000;
+                    var my = (now - val.y * 20 - Math.abs(val.x - canvas.width / 2) * 10) * (startY - val.y) /
+                        3000;
+                }
+                if (now - val.y * 20 < 0) {
+                    mx = 0;
+                    my = 0;
+                }
+
+                ctx.fillStyle = val.style;
+                ctx.fillRect(startX - mx, startY - my, 2, 2);
+            })
+            requestAnimationFrame(loop);
+        }
+        loop();
+    }
+</script>
+
+</html>
