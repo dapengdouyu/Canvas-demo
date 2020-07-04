@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <video autoplay></video>
+    <span style="display: none;"> 没有授权摄像头</span>
+    <script>
+        (async () => {
+            const span = document.querySelector("span")
+            try {
+                span.style.display = "none"
+                const video = document.querySelector("video")
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                })
+                video.srcObject = stream
+            } catch (error) {
+                span.style.display = "true"
+            }
+
+        })()
+    </script>
+</body>
+
+</html>
