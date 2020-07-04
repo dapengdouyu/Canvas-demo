@@ -6,4 +6,4 @@
 
 ### [粒子浮效](https://dapengdouyu.github.io/Canvas-demo/lizi.html)
 
-### [摄像头](https://dapengdouyu.github.io/Canvas-demo/video.html)
+### [摄像头](https://dapengdouyu.github.io/Canvas-demo/mediaDevices.html)
